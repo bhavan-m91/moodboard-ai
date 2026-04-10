@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap");
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      background: #0a0a0a;
+      color: #f0ede8;
+      font-family: "Outfit", sans-serif;
+      padding: 16px;
+      overflow-x: hidden;
+      font-size: 13px;
+    }
+
+    h2 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #f5a623;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+      display: flex;
+      gap: 8px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      background: #161616;
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #f0ede8;
+      padding: 8px 12px;
+      border-radius: 8px;
+      outline: none;
+      font-family: inherit;
+    }
+    input[type="text"]:focus {
+      border-color: #f5a623;
+    }
+
+    button {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #f0ede8;
+      font-family: inherit;
+      font-weight: 500;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    button.primary {
+      background: linear-gradient(135deg, #f5a623, #e8941a);
+      color: #0a0a0a;
+      border: none;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .items-container {
+      margin-top: 16px;
+      margin-bottom: 16px;
+      max-height: 280px;
+      overflow-y: auto;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      background: #111111;
+    }
+    .items-container::-webkit-scrollbar {
+      width: 6px;
+    }
+    .items-container::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px;
+    }
+
+    .item-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      cursor: pointer;
+    }
+    .item-card:hover {
+      background: rgba(255,255,255,0.02);
+    }
+    .item-card:last-child {
+      border-bottom: none;
+    }
+
+    .item-thumb {
+      width: 48px;
+      height: 48px;
+      border-radius: 6px;
+      background: #1a1a1a;
+      object-fit: cover;
+    }
+
+    .item-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .item-title {
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 2px;
+    }
+    .item-tags {
+      font-size: 10px;
+      color: #a8a29e;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Custom Checkbox */
+    .checkbox-wrapper {
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+    .checkbox-wrapper input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+      height: 0;
+      width: 0;
+    }
+    .checkmark {
+      height: 16px;
+      width: 16px;
+      background-color: #1a1a1a;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .checkbox-wrapper:hover input ~ .checkmark {
+      border-color: rgba(255,255,255,0.4);
+    }
+    .checkbox-wrapper input:checked ~ .checkmark {
+      background-color: #f5a623;
+      border-color: #f5a623;
+    }
+    .checkmark:after {
+      content: "";
+      display: none;
+      width: 4px;
+      height: 8px;
+      border: solid #0a0a0a;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+      margin-bottom: 2px;
+    }
+    .checkbox-wrapper input:checked ~ .checkmark:after {
+      display: block;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .select-all {
+      font-size: 11px;
+      color: #a8a29e;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+    }
+    .select-all:hover {
+      color: #f0ede8;
+    }
+
+    .status {
+      font-size: 11px;
+      color: #a8a29e;
+      text-align: center;
+      margin-top: 12px;
+      min-height: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>MoodBoard AI Integrator</h2>
+  
+  <div class="form-group">
+    <input type="text" id="projectInput" value="My Project" placeholder="Project Name" />
+    <button id="loadBtn">Load</button>
+  </div>
+
+  <div class="controls" id="controls" style="display: none;">
+    <button class="select-all" id="selectAllBtn">Select All</button>
+    <span class="status" id="countStatus" style="margin: 0;">0 selected</span>
+  </div>
+
+  <div class="items-container" id="itemsList">
+    <!-- Items populated by JS -->
+    <div style="padding: 20px; text-align: center; color: #6b6560;">
+      Enter a project name to load wishlist images.
+    </div>
+  </div>
+
+  <button class="primary" id="importBtn" style="width: 100%; display: none;">
+    Import Selected to Figma
+  </button>
+  
+  <div class="status" id="statusMsg"></div>
+
+  <script>
+    let loadedItems = [];
+    let selectedIds = new Set();
+    const API_URL = "http://localhost:8000"; // Point to backend
+
+    const projectInput = document.getElementById('projectInput');
+    const loadBtn = document.getElementById('loadBtn');
+    const itemsList = document.getElementById('itemsList');
+    const importBtn = document.getElementById('importBtn');
+    const controls = document.getElementById('controls');
+    const selectAllBtn = document.getElementById('selectAllBtn');
+    const countStatus = document.getElementById('countStatus');
+    const statusMsg = document.getElementById('statusMsg');
+
+    function updateSelectionCount() {
+      countStatus.innerText = `${selectedIds.size} of ${loadedItems.length} selected`;
+      importBtn.style.display = loadedItems.length > 0 ? "block" : "none";
+      importBtn.disabled = selectedIds.size === 0;
+    }
+
+    function renderItems() {
+      if (loadedItems.length === 0) {
+        itemsList.innerHTML = `<div style="padding: 20px; text-align: center; color: #6b6560;">No items found for this project.</div>`;
+        controls.style.display = "none";
+        importBtn.style.display = "none";
+        return;
+      }
+
+      controls.style.display = "flex";
+      itemsList.innerHTML = "";
+
+      loadedItems.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'item-card';
+        div.onclick = (e) => {
+          if (e.target.tagName !== 'INPUT') {
+            const cb = div.querySelector('input[type="checkbox"]');
+            cb.checked = !cb.checked;
+            cb.dispatchEvent(new Event('change'));
+          }
+        };
+
+        const isChecked = selectedIds.has(item.id);
+
+        const tags = Array.isArray(item.image_result.tags) 
+          ? item.image_result.tags.slice(0, 3).join(", ") 
+          : "";
+        
+        const title = item.image_result.title || "Untitled design";
+        const thumbUrl = item.image_result.thumbnail_url || item.image_result.url;
+
+        div.innerHTML = `
+          <label class="checkbox-wrapper">
+            <input type="checkbox" value="${item.id}" ${isChecked ? 'checked' : ''} />
+            <span class="checkmark"></span>
+          </label>
+          <img src="${thumbUrl}" class="item-thumb" />
+          <div class="item-info">
+            <div class="item-title">${title}</div>
+            <div class="item-tags">${tags}</div>
+          </div>
+        `;
+
+        div.querySelector('input').addEventListener('change', (e) => {
+          if (e.target.checked) selectedIds.add(item.id);
+          else selectedIds.delete(item.id);
+          updateSelectionCount();
+        });
+
+        itemsList.appendChild(div);
+      });
+
+      updateSelectionCount();
+    }
+
+    loadBtn.onclick = async () => {
+      const proj = projectInput.value.trim();
+      if (!proj) return;
+
+      loadBtn.disabled = true;
+      loadBtn.innerText = "Loading...";
+      statusMsg.innerText = "";
+      
+      try {
+        // Allow user to upload JSON via drag/drop or input instead of hard erroring locally
+        const res = await fetch(`${API_URL}/api/wishlist/${encodeURIComponent(proj)}`);
+        
+        if (!res.ok) throw new Error("Failed to load");
+        
+        loadedItems = await res.json();
+        // default select all
+        selectedIds = new Set(loadedItems.map(i => i.id));
+        renderItems();
+        statusMsg.innerText = "Loaded successfully.";
+      } catch (err) {
+        console.error(err);
+        statusMsg.innerText = "Failed to load from backend. Make sure it's running on localhost:8000.";
+        itemsList.innerHTML = `<div style="padding: 20px; text-align: center; color: #ef4444;">Could not connect to API.</div>`;
+      } finally {
+        loadBtn.disabled = false;
+        loadBtn.innerText = "Load";
+      }
+    };
+
+    selectAllBtn.onclick = () => {
+      if (selectedIds.size === loadedItems.length) {
+        selectedIds.clear();
+      } else {
+        selectedIds = new Set(loadedItems.map(i => i.id));
+      }
+      renderItems();
+    };
+
+    importBtn.onclick = () => {
+      const toImport = loadedItems.filter(i => selectedIds.has(i.id));
+      if (toImport.length === 0) return;
+
+      importBtn.disabled = true;
+      projectInput.disabled = true;
+      statusMsg.innerText = "Starting import...";
+
+      parent.postMessage({
+        pluginMessage: {
+          type: 'import',
+          items: toImport,
+          projectName: projectInput.value.trim()
+        }
+      }, '*');
+    };
+
+    // Listen to messages from Figma logic
+    window.onmessage = (event) => {
+      const msg = event.data.pluginMessage;
+      if (!msg) return;
+
+      if (msg.type === "progress") {
+        statusMsg.innerText = `Importing image ${msg.current} of ${msg.total}...`;
+      } else if (msg.type === "done") {
+        statusMsg.innerText = "Import complete! Moodboard ready.";
+        importBtn.disabled = false;
+        projectInput.disabled = false;
+      } else if (msg.type === "error") {
+        statusMsg.innerText = `Error: ${msg.message}`;
+        importBtn.disabled = false;
+        projectInput.disabled = false;
+      }
+    };
+  </script>
+</body>
+</html>

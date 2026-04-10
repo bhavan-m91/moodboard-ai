@@ -1,0 +1,12 @@
+{
+  "name": "moodboard-ai-figma",
+  "version": "1.0.0",
+  "description": "Figma plugin to import MoodBoard AI wishlists",
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.88.0",
+    "typescript": "^5.0.4"
+  }
+}
